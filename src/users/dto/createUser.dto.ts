@@ -5,6 +5,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UserSettings } from '../../schemas/UserSettings.schema';
+import { CreateUserSettingsDto } from './createUserSettings.dto';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -17,5 +19,6 @@ export class CreateUserDto {
 
   @IsOptional()
   @ValidateNested()
+  @Type(() => CreateUserSettingsDto)
   userSettings?: UserSettings;
 }

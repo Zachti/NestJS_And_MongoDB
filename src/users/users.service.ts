@@ -4,12 +4,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { UserSettings } from '../schemas/UserSettings.schema';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserSettings.name) private userSettingsModel,
+  ) {}
 
-  createUser(createUserDto: CreateUserDto) {
+  createUser({ settings, ...createUserDto }: CreateUserDto) {
+    if (settings) return this.setUserSettingsAndCreate(settings, createUserDto);
     return new this.userModel(createUserDto).save();
   }
 
@@ -39,5 +44,16 @@ export class UserService {
   private validateUserFound(user) {
     if (!user) throw new HttpException('User not found!', 404);
     return user;
+  }
+
+  private setUserSettingsAndCreate(
+    settings: UserSettings,
+    createUserDto: CreateUserDto,
+  ) {
+    new this.userSettingsModel(settings).save();
+    return new this.userModel({
+      ...createUserDto,
+      settings,
+    }).save();
   }
 }
