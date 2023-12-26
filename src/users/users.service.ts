@@ -19,11 +19,13 @@ export class UserService {
   }
 
   getUsers() {
-    return this.userModel.find();
+    return this.userModel.find().populate(['settings', 'posts']);
   }
 
   async getUserById(id: string) {
-    const user = await this.userModel.findById(id);
+    const user = await this.userModel
+      .findById(id)
+      .populate(['settings', 'posts']);
     return this.validateUserFound(user);
   }
 
